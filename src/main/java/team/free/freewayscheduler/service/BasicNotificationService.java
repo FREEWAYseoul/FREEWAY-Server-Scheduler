@@ -21,7 +21,6 @@ import java.util.List;
 public class BasicNotificationService implements NotificationService {
 
     private static final List<NotificationDto> notificationCache = new ArrayList<>();
-    private static final int BEFORE_DATE = 14;
 
     private final NotificationRepository notificationRepository;
     private final SeoulMetroTwitterCrawler crawler;
