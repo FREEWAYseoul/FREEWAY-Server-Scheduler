@@ -53,6 +53,7 @@ public class SeoulMetroTwitterCrawler {
             notifications.add(new NotificationDto(notificationContent, notificationDate));
         }
 
+        driver.close();
         return notifications;
     }
 
