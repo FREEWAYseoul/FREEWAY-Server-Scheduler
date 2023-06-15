@@ -5,7 +5,7 @@ spring:
     password: jcw!1530
 
 driver:
-  path: ~/home/ubuntu
+  path:
 
 target:
   url: http://www.seoulmetro.co.kr/kr/index.do?device=PC#secondPage
