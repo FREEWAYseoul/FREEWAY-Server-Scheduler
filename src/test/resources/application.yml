@@ -6,6 +6,9 @@ spring:
 driver:
   path: test
 
+twitter:
+  url: test
+
 target:
   url: test
 

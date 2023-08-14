@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@Component
-public class SeoulMetroTwitterCrawler {
+//@Component
+public class SeoulMetroTwitterCrawler implements NotificationCrawler {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy년M월d일 H시m분");
 
@@ -26,7 +25,8 @@ public class SeoulMetroTwitterCrawler {
     @Value("${target.url}")
     private String targetUrl = "http://www.seoulmetro.co.kr/kr/index.do?device=PC#secondPage";
 
-    public List<NotificationDto> crawlingSeoulMetroTwitter() {
+    @Override
+    public List<NotificationDto> crawlingTwitter() {
         List<NotificationDto> notifications = new ArrayList<>();
 
         Path path = Paths.get(System.getProperty("user.dir"), chromedriverPath);
@@ -37,7 +37,7 @@ public class SeoulMetroTwitterCrawler {
         ChromeDriver driver = new ChromeDriver(options);
         driver.get(targetUrl);
 
-        List<WebElement> notificationElements = driver.findElements(By.cssSelector("div#sns_reads ul"));
+        List<WebElement> notificationElements = driver.findElements(By.cssSelector("div#twitter"));
 
         for (WebElement notificationElement : notificationElements) {
             WebElement contentElement = notificationElement.findElement(By.cssSelector(".content"));

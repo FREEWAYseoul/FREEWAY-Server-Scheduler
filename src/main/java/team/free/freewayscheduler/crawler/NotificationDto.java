@@ -30,6 +30,4 @@ public class NotificationDto {
         }
         return this.notificationDate.equals(notificationDto.getNotificationDate());
     }
-
-
 }
