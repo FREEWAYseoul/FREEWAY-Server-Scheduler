@@ -48,7 +48,7 @@ public class OpenAIRequestManager {
     }
 
     private OpenAIRequestDto createRequestBodyObject(String content) {
-        MessageDto systemMessage = new MessageDto("system", "다음 내용을 중요 키워드만 사용하여 짧고 간단한 50자 이내의 한글 제목으로 매우 간단하게 요약");
+        MessageDto systemMessage = new MessageDto("system", "다음 내용을 중요 키워드만 사용하여 짧고 간단한 30자 이내의 한글 제목으로 매우 간단하게 요약");
         MessageDto userMessage = new MessageDto("user", content);
         List<MessageDto> messages = List.of(systemMessage, userMessage);
 

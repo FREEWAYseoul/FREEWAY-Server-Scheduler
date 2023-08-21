@@ -1,12 +1,13 @@
 package team.free.freewayscheduler.crawler;
 
-import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.swing.text.html.HTML;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -14,16 +15,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-//@Component
-public class SeoulMetroTwitterCrawler implements NotificationCrawler {
+@Component
+public class NitterCrawler implements NotificationCrawler {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy · hh:mm a z");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a z");
 
     @Value("${driver.path}")
     private String chromedriverPath;
     @Value("${target.url}")
-    private String targetUrl = "https://nitter.net/seoul_metro";
+    private String targetUrl;
 
     @Override
     public List<NotificationDto> crawlingTwitter() {
@@ -48,10 +48,13 @@ public class SeoulMetroTwitterCrawler implements NotificationCrawler {
             if (notificationContent.contains("🔗")) {
                 notificationContent = notificationContent.split("🔗")[0];
             }
+            notificationContent = notificationContent.replaceAll("\n", "");
 
-            WebElement dateElement = notificationElement.findElement(By.className("tweet-date"));
-            LocalDateTime notificationDate = LocalDateTime.parse(dateElement.getText(), FORMATTER);
+            WebElement dateElement =
+                    notificationElement.findElement(By.className("tweet-date")).findElement(By.tagName(HTML.Tag.A.toString()));
+            String dateTime = dateElement.getAttribute("title");
 
+            LocalDateTime notificationDate = LocalDateTime.parse(dateTime, FORMATTER);
             notifications.add(new NotificationDto(notificationContent, notificationDate));
         }
 

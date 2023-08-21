@@ -47,7 +47,6 @@ public class BasicNotificationService implements NotificationService {
                 continue;
             }
 
-            log.info("Notification saving...");
             Notification notification = Notification.from(notificationDto);
             String notificationSummary;
             try {
@@ -67,8 +66,6 @@ public class BasicNotificationService implements NotificationService {
 
             notificationCache.add(notificationDto);
         }
-
-        log.info("Notification save end");
     }
 
     private boolean existsNotification(NotificationDto notificationDto) {
