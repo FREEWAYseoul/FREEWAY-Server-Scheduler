@@ -48,7 +48,7 @@ public class NitterCrawler implements NotificationCrawler {
             if (notificationContent.contains("🔗")) {
                 notificationContent = notificationContent.split("🔗")[0];
             }
-            notificationContent = notificationContent.replaceAll("\n", "");
+            notificationContent = notificationContent.replaceAll("\n\n", " ");
 
             WebElement dateElement =
                     notificationElement.findElement(By.className("tweet-date")).findElement(By.tagName(HTML.Tag.A.toString()));
