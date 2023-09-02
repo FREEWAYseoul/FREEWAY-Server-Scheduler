@@ -41,9 +41,10 @@ public class BasicNotificationService implements NotificationService {
     @Transactional
     @Override
     public void updateSubwayNotification() {
+        List<NotificationDto> notificationCacheSnapshot = List.copyOf(notificationCache);
         List<NotificationDto> notificationDtoList = crawler.crawlingTwitter();
         for (NotificationDto notificationDto : notificationDtoList) {
-            if (existsNotification(notificationDto)) {
+            if (notificationCache.contains(notificationDto)) {
                 continue;
             }
 
@@ -61,19 +62,15 @@ public class BasicNotificationService implements NotificationService {
                 notificationRepository.save(notification);
             } catch (Exception e) {
                 e.printStackTrace();
-                continue;
+                rollbackCache(notificationCacheSnapshot);
             }
 
             notificationCache.add(notificationDto);
         }
     }
 
-    private boolean existsNotification(NotificationDto notificationDto) {
-        for (NotificationDto recentNotification : notificationCache) {
-            if (recentNotification.equals(notificationDto)) {
-                return true;
-            }
-        }
-        return false;
+    private void rollbackCache(List<NotificationDto> notificationCacheSnapshot) {
+        notificationCache.clear();
+        notificationCache.addAll(notificationCacheSnapshot);
     }
 }

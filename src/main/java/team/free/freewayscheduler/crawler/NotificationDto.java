@@ -30,4 +30,11 @@ public class NotificationDto {
         }
         return this.notificationDate.equals(notificationDto.getNotificationDate());
     }
+
+    @Override
+    public int hashCode() {
+        int result = notificationContent != null ? notificationContent.hashCode() : 0;
+        result = 31 * result + (notificationDate != null ? notificationDate.hashCode() : 0);
+        return result;
+    }
 }

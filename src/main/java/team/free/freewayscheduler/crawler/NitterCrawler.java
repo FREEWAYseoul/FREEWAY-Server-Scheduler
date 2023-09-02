@@ -1,6 +1,9 @@
 package team.free.freewayscheduler.crawler;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -8,20 +11,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.swing.text.html.HTML;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class NitterCrawler implements NotificationCrawler {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a z");
 
-    @Value("${driver.path}")
-    private String chromedriverPath;
     @Value("${target.url}")
     private String targetUrl;
 
@@ -29,12 +29,10 @@ public class NitterCrawler implements NotificationCrawler {
     public List<NotificationDto> crawlingTwitter() {
         List<NotificationDto> notifications = new ArrayList<>();
 
-        Path path = Paths.get(System.getProperty("user.dir"), chromedriverPath);
+        WebDriverManager.chromedriver().setup();
 
-        System.setProperty("webdriver.chrome.driver", path.toString());
         ChromeOptions options = createChromeOptions();
-
-        ChromeDriver driver = new ChromeDriver(options);
+        WebDriver driver = new ChromeDriver(options);
         driver.get(targetUrl);
 
         List<WebElement> notificationElements = driver.findElements(By.className("timeline-item"));
@@ -73,6 +71,7 @@ public class NitterCrawler implements NotificationCrawler {
         options.addArguments("--no-sandbox");
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("User-Agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36");
+        options.setBrowserVersion("117");
         return options;
     }
 }
