@@ -11,7 +11,7 @@ public class NotificationScheduler {
 
     private final NotificationService notificationService;
 
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 */10 * * * *")
     public void periodicUpdateNotification() {
         notificationService.updateSubwayNotification();
     }

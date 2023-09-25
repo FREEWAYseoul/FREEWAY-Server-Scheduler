@@ -63,6 +63,7 @@ public class BasicNotificationService implements NotificationService {
             } catch (Exception e) {
                 e.printStackTrace();
                 rollbackCache(notificationCacheSnapshot);
+                throw new IllegalArgumentException("너무 긴 요약");
             }
 
             notificationCache.add(notificationDto);

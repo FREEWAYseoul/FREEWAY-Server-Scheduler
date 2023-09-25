@@ -52,7 +52,7 @@ public class NitterCrawler implements NotificationCrawler {
                     notificationElement.findElement(By.className("tweet-date")).findElement(By.tagName(HTML.Tag.A.toString()));
             String dateTime = dateElement.getAttribute("title");
 
-            LocalDateTime notificationDate = LocalDateTime.parse(dateTime, FORMATTER);
+            LocalDateTime notificationDate = LocalDateTime.parse(dateTime, FORMATTER).plusHours(9);
             notifications.add(new NotificationDto(notificationContent, notificationDate));
         }
 
@@ -63,7 +63,6 @@ public class NitterCrawler implements NotificationCrawler {
     private ChromeOptions createChromeOptions() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
-        options.addArguments("--headless");
         options.addArguments("--disable-extensions");
         options.addArguments("--disable-popup-blocking");
         options.addArguments("--disable-default-apps");
@@ -71,7 +70,6 @@ public class NitterCrawler implements NotificationCrawler {
         options.addArguments("--no-sandbox");
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("User-Agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36");
-        options.setBrowserVersion("117");
         return options;
     }
 }
