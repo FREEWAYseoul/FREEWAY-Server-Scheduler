@@ -35,28 +35,31 @@ public class NitterCrawler implements NotificationCrawler {
         WebDriver driver = new ChromeDriver(options);
         driver.get(targetUrl);
 
-        List<WebElement> notificationElements = driver.findElements(By.className("timeline-item"));
+        try {
+            List<WebElement> notificationElements = driver.findElements(By.className("timeline-item"));
 
-        for (WebElement notificationElement : notificationElements) {
-            WebElement contentElement = notificationElement.findElement(By.className("tweet-content"));
-            String notificationContent = contentElement.getText();
-            if (notificationContent.contains("http")) {
-                notificationContent = notificationContent.split(" http")[0];
+            for (WebElement notificationElement : notificationElements) {
+                WebElement contentElement = notificationElement.findElement(By.className("tweet-content"));
+                String notificationContent = contentElement.getText();
+                if (notificationContent.contains("http")) {
+                    notificationContent = notificationContent.split(" http")[0];
+                }
+                if (notificationContent.contains("🔗")) {
+                    notificationContent = notificationContent.split("🔗")[0];
+                }
+                notificationContent = notificationContent.replaceAll("\n\n", " ");
+
+                WebElement dateElement =
+                        notificationElement.findElement(By.className("tweet-date")).findElement(By.tagName(HTML.Tag.A.toString()));
+                String dateTime = dateElement.getAttribute("title");
+
+                LocalDateTime notificationDate = LocalDateTime.parse(dateTime, FORMATTER).plusHours(9);
+                notifications.add(new NotificationDto(notificationContent, notificationDate));
             }
-            if (notificationContent.contains("🔗")) {
-                notificationContent = notificationContent.split("🔗")[0];
-            }
-            notificationContent = notificationContent.replaceAll("\n\n", " ");
-
-            WebElement dateElement =
-                    notificationElement.findElement(By.className("tweet-date")).findElement(By.tagName(HTML.Tag.A.toString()));
-            String dateTime = dateElement.getAttribute("title");
-
-            LocalDateTime notificationDate = LocalDateTime.parse(dateTime, FORMATTER).plusHours(9);
-            notifications.add(new NotificationDto(notificationContent, notificationDate));
+        } finally {
+            driver.close();
         }
 
-        driver.close();
         return notifications;
     }
 
