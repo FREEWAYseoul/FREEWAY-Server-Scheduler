@@ -10,11 +10,12 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import javax.swing.text.html.HTML;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -22,45 +23,49 @@ public class NitterCrawler implements NotificationCrawler {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a z");
 
+    private final WebDriver driver;
+
     @Value("${target.url}")
     private String targetUrl;
 
-    @Override
-    public List<NotificationDto> crawlingTwitter() {
-        List<NotificationDto> notifications = new ArrayList<>();
-
+    public NitterCrawler() {
         WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = createChromeOptions();
-        WebDriver driver = new ChromeDriver(options);
+        driver = new ChromeDriver(options);
+    }
+
+    @PreDestroy
+    void tearDown() {
+        driver.close();
+    }
+
+    @Override
+    public List<NotificationDto> crawlingTwitter() {
         driver.get(targetUrl);
+        List<WebElement> notificationElements = driver.findElements(By.className("timeline-item"));
+        return notificationElements.stream()
+                .map(this::convertToNotificationDto)
+                .collect(Collectors.toList());
+    }
 
-        try {
-            List<WebElement> notificationElements = driver.findElements(By.className("timeline-item"));
-
-            for (WebElement notificationElement : notificationElements) {
-                WebElement contentElement = notificationElement.findElement(By.className("tweet-content"));
-                String notificationContent = contentElement.getText();
-                if (notificationContent.contains("http")) {
-                    notificationContent = notificationContent.split(" http")[0];
-                }
-                if (notificationContent.contains("🔗")) {
-                    notificationContent = notificationContent.split("🔗")[0];
-                }
-                notificationContent = notificationContent.replaceAll("\n\n", " ");
-
-                WebElement dateElement =
-                        notificationElement.findElement(By.className("tweet-date")).findElement(By.tagName(HTML.Tag.A.toString()));
-                String dateTime = dateElement.getAttribute("title");
-
-                LocalDateTime notificationDate = LocalDateTime.parse(dateTime, FORMATTER).plusHours(9);
-                notifications.add(new NotificationDto(notificationContent, notificationDate));
-            }
-        } finally {
-            driver.close();
+    private NotificationDto convertToNotificationDto(WebElement element) {
+        WebElement contentElement = element.findElement(By.className("tweet-content"));
+        String notificationContent = contentElement.getText();
+        if (notificationContent.contains("http")) {
+            notificationContent = notificationContent.split(" http")[0];
         }
+        if (notificationContent.contains("🔗")) {
+            notificationContent = notificationContent.split("🔗")[0];
+        }
+        notificationContent = notificationContent.replaceAll("\n\n", " ");
 
-        return notifications;
+        WebElement dateElement =
+                element.findElement(By.className("tweet-date")).findElement(By.tagName(HTML.Tag.A.toString()));
+        String dateTime = dateElement.getAttribute("title");
+
+        LocalDateTime notificationDate = LocalDateTime.parse(dateTime, FORMATTER).plusHours(9);
+        return new NotificationDto(notificationContent, notificationDate);
     }
 
     private ChromeOptions createChromeOptions() {
